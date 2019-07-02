@@ -5,34 +5,37 @@ const dbOperation = require('./operations');
 const url = 'mongodb://localhost:27017/';
 const dbname = 'conFusion';
 
-MongoClient.connect(url, (err, client) => {
-    assert.equal(err, null);
+MongoClient.connect(url).then((client) => {
 
     console.log('Connected to the server.');
 
     const db = client.db(dbname);
-    dbOperation.insertDocument(db, {name: "Fish", description: "Fry"}, 'dishes', (result) => {
+    dbOperation.insertDocument(db, {name: "Fish", description: "Fry"}, 'dishes')
+    .then((result) => {
         console.log("Inserted Document: \n ", result.ops,"\n");
 
-        dbOperation.findDocuments(db, 'dishes', (docs) => {
-            console.log("Found documents: \n", docs);
+        return dbOperation.findDocuments(db, 'dishes')
+    })
+    .then((docs) => {
+        console.log("Found documents: \n", docs);
 
-            dbOperation.updateDocument(db, {name:"Fish"}, {description: "Tikka"}, 'dishes', (result) => {
-                console.log("Updated document \n ", result.result,"\n");
-                dbOperation.findDocuments(db, 'dishes', (docs) => {
-                    console.log("Found documents: \n", docs);
-                });
+        return dbOperation.updateDocument(db, {name:"Fish"}, {description: "Tikka"}, 'dishes')
+    })
 
-                db.dropCollection("dishes", (result) => {
-                    console.log(result," Dropped");
+   .then((result) => {
+        console.log("Updated document \n ", result.result,"\n");
+        return dbOperation.findDocuments(db, 'dishes')
+    })
 
-                    client.close();
-                });
-            });
-        });
+    .then((docs) => {
+        console.log("Found documents: \n", docs);
+        return db.dropCollection("dishes");
+    })
+    .then((result) => {
+        console.log(" Dropped Collection: ",result);
+
+        return client.close();
     });
-
-
 
     // const collection = db.collection("dishes");
 
@@ -53,6 +56,7 @@ MongoClient.connect(url, (err, client) => {
     //         });
     //     });
     // });
-});
+})
+.catch((err) => console.log("Error caught"));
 
 
