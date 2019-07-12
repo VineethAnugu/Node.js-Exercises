@@ -88,6 +88,7 @@ dishRouter.route('/:dishId')
 
 
 
+// dishes/:dishId/comments/
 dishRouter.route('/:dishId/comments')
 .get((req,res,next) => {
     Dishes.findById(req.params.dishId)
@@ -157,7 +158,7 @@ dishRouter.route('/:dishId/comments')
 
 
 
-// /dishes/:dishId
+// /dishes/:dishId/comments/:commentId
 dishRouter.route('/:dishId/comments/:commentId')
 .get((req,res,next) => {
     Dishes.findById(req.params.dishId)
