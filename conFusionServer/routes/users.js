@@ -15,19 +15,29 @@ router.get('/', function(req, res, next) {
 router.post('/signup', function(req, res, next) {
   User.register(new User({username: req.body.username}), req.body.password, (err, user) => {
     if(err){
-      // var err = new Error('User '+req.body.username+' already exists');
-      // err.status = 403;
-      // next(err);
-
       res.statusCode = 500;
       res.setHeader('Content-Type', 'application/json');
       res.json({err:err});
     }
     else{
-      passport.authenticate('local')(req,res, () => {
-        res.statusCode = 200;
-        res.setHeader('Content-Type', 'application/json');
-        res.json({status: 'Registaration Successful!', success: true})
+      if(req.body.firstName){
+        user.firstName = req.body.firstName;
+      }
+      if(req.body.lastName){
+        user.lastName = req.body.lastName;
+      }
+      user.save((err, user) => {
+        if(err){
+          res.statusCode = 500;
+          res.setHeader('Content-Type', 'application/json');
+          res.json({err:err});
+          return;
+        }
+        passport.authenticate('local')(req,res, () => {
+          res.statusCode = 200;
+          res.setHeader('Content-Type', 'application/json');
+          res.json({status: 'Registaration Successful!', success: true})
+      });
       });
     }
   })    
